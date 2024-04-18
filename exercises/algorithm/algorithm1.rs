@@ -2,7 +2,6 @@
     single linked list merge
     This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
@@ -19,6 +18,7 @@ impl<T> Node<T> {
         Node { val: t, next: None }
     }
 }
+
 #[derive(Debug)]
 struct LinkedList<T> {
     length: u32,
@@ -66,21 +66,36 @@ impl<T> LinkedList<T> {
             },
         }
     }
-    pub fn merge(list_a: LinkedList<T>, list_b: LinkedList<T>) -> Self {
+    pub fn merge(list_a: LinkedList<T>, list_b: LinkedList<T>) -> Self where T: PartialOrd + PartialEq + Copy {
         let mut merged = LinkedList::<T>::new();
-        let min_len: u32 = if list_a.length > list_b.length {
-            list_b.length - 1
-        } else {
-            list_a.length - 1
-        };
-        let mut ptr_a = list_a.start;
-        let mut ptr_b = list_b.start;
+        let mut a = list_a.start;
+        let mut b = list_b.start;
+        while let (Some(na), Some(nb)) = (a, b) {
+            let val_a = unsafe { (*na.as_ptr()).val };
+            let val_b = unsafe { (*nb.as_ptr()).val };
+            if val_a < val_b {
+                merged.add(val_a);
+                a = unsafe { (*na.as_ptr()).next }
+            } else {
+                merged.add(val_b);
+                b = unsafe { (*nb.as_ptr()).next }
+            }
+        }
+        while let Some(na) = a {
+            merged.add(unsafe { (*na.as_ptr()).val });
+            a = unsafe { (*na.as_ptr()).next };
+        }
+        while let Some(nb) = b {
+            merged.add(unsafe { (*nb.as_ptr()).val });
+            b = unsafe { (*nb.as_ptr()).next };
+        }
+        merged
     }
 }
 
 impl<T> Display for LinkedList<T>
-where
-    T: Display,
+    where
+        T: Display,
 {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         match self.start {
@@ -91,8 +106,8 @@ where
 }
 
 impl<T> Display for Node<T>
-where
-    T: Display,
+    where
+        T: Display,
 {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         match self.next {
@@ -147,6 +162,7 @@ mod tests {
             assert_eq!(target_vec[i], *list_c.get(i as i32).unwrap());
         }
     }
+
     #[test]
     fn test_merge_linked_list_2() {
         let mut list_a = LinkedList::<i32>::new();
