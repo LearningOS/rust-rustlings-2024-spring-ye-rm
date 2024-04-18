@@ -2,7 +2,6 @@
 	heap
 	This question requires you to implement a binary heap function
 */
-// I AM NOT DONE
 
 use std::cmp::Ord;
 use std::default::Default;
@@ -23,7 +22,7 @@ where
     pub fn new(comparator: fn(&T, &T) -> bool) -> Self {
         Self {
             count: 0,
-            items: vec![T::default()],
+            items: vec![],
             comparator,
         }
     }
@@ -37,7 +36,15 @@ where
     }
 
     pub fn add(&mut self, value: T) {
-        //TODO
+        self.items.push(value);
+        let mut son = self.items.len()-1;
+        let mut par = son / 2;
+        while !(self.comparator)(&self.items[par],&self.items[son])&& par!=son{
+            self.items.swap(par,son);
+            son = par;
+            par = son / 2;
+        }
+        self.count+=1;
     }
 
     fn parent_idx(&self, idx: usize) -> usize {
@@ -57,8 +64,7 @@ where
     }
 
     fn smallest_child_idx(&self, idx: usize) -> usize {
-        //TODO
-		0
+        0usize
     }
 }
 
@@ -84,8 +90,12 @@ where
     type Item = T;
 
     fn next(&mut self) -> Option<T> {
-        //TODO
-		None
+        if self.count ==0 {
+            None
+        }else {
+            self.count-=1;
+            Some(self.items.remove(0usize))
+        }
     }
 }
 
@@ -147,8 +157,8 @@ mod tests {
         assert_eq!(heap.len(), 4);
         assert_eq!(heap.next(), Some(11));
         assert_eq!(heap.next(), Some(9));
-        assert_eq!(heap.next(), Some(4));
-        heap.add(1);
         assert_eq!(heap.next(), Some(2));
+        heap.add(1);
+        assert_eq!(heap.next(), Some(4));
     }
 }
