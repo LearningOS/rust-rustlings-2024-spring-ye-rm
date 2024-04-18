@@ -3,15 +3,14 @@
 	This problem requires you to implement a basic interface for a binary tree
 */
 
-//I AM NOT DONE
 use std::cmp::Ordering;
 use std::fmt::Debug;
 
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 struct TreeNode<T>
-where
-    T: Ord,
+    where
+        T: Ord + PartialEq + PartialOrd,
 {
     value: T,
     left: Option<Box<TreeNode<T>>>,
@@ -20,15 +19,15 @@ where
 
 #[derive(Debug)]
 struct BinarySearchTree<T>
-where
-    T: Ord,
+    where
+        T: Ord,
 {
     root: Option<Box<TreeNode<T>>>,
 }
 
 impl<T> TreeNode<T>
-where
-    T: Ord,
+    where
+        T: Ord,
 {
     fn new(value: T) -> Self {
         TreeNode {
@@ -40,33 +39,55 @@ where
 }
 
 impl<T> BinarySearchTree<T>
-where
-    T: Ord,
+    where
+        T: Ord,
 {
-
     fn new() -> Self {
         BinarySearchTree { root: None }
     }
 
     // Insert a value into the BST
     fn insert(&mut self, value: T) {
-        //TODO
+        let mut pos = self.root.as_mut();
+        if pos == None{
+            self.root=Some(Box::new(TreeNode::new(value)));
+            return;
+        }
+        while let Some(node_ref) = pos {
+            let val = &node_ref.value;
+            if *val==value{
+                return;
+            }else if *val > value {
+                if node_ref.left.is_none() {
+                    node_ref.left = Some(Box::new(TreeNode::new(value)));
+                    break;
+                } else {
+                    pos = node_ref.left.as_mut();
+                }
+            } else {
+                if node_ref.right.is_none() {
+                    node_ref.right = Some(Box::new(TreeNode::new(value)));
+                    break;
+                } else {
+                    pos = node_ref.right.as_mut();
+                }
+            }
+        }
     }
 
     // Search for a value in the BST
     fn search(&self, value: T) -> bool {
-        //TODO
-        true
-    }
-}
-
-impl<T> TreeNode<T>
-where
-    T: Ord,
-{
-    // Insert a node into the tree
-    fn insert(&mut self, value: T) {
-        //TODO
+        let mut cur = self.root.as_ref();
+        while let Some(rf)=cur{
+            if rf.value==value{
+                return true;
+            }else if rf.value>value{
+                cur=rf.left.as_ref();
+            }else {
+                cur=rf.right.as_ref();
+            }
+        }
+        return false;
     }
 }
 
@@ -79,24 +100,24 @@ mod tests {
     fn test_insert_and_search() {
         let mut bst = BinarySearchTree::new();
 
-        
+
         assert_eq!(bst.search(1), false);
 
-        
+
         bst.insert(5);
         bst.insert(3);
         bst.insert(7);
         bst.insert(2);
         bst.insert(4);
 
-        
+
         assert_eq!(bst.search(5), true);
         assert_eq!(bst.search(3), true);
         assert_eq!(bst.search(7), true);
         assert_eq!(bst.search(2), true);
         assert_eq!(bst.search(4), true);
 
-        
+
         assert_eq!(bst.search(1), false);
         assert_eq!(bst.search(6), false);
     }
@@ -105,22 +126,22 @@ mod tests {
     fn test_insert_duplicate() {
         let mut bst = BinarySearchTree::new();
 
-        
+
         bst.insert(1);
         bst.insert(1);
 
-        
+
         assert_eq!(bst.search(1), true);
 
-        
+
         match bst.root {
             Some(ref node) => {
                 assert!(node.left.is_none());
                 assert!(node.right.is_none());
-            },
+            }
             None => panic!("Root should not be None after insertion"),
         }
     }
-}    
+}
 
 
