@@ -34,7 +34,7 @@ impl<T> Stack<T> {
 			return None;
 		}
 		self.size -= 1;
-		self.pop()
+		self.data.pop()
 	}
 	fn peek(&self) -> Option<&T> {
 		if 0 == self.size {
